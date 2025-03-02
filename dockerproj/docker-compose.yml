@@ -1,0 +1,48 @@
+services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "81:80"
+    depends_on:
+      - streamlitfront
+      - flaskapi
+    networks:
+      - app_network
+
+  streamlitfront:
+    build: ./streamlit_front
+    container_name: streamlitfront
+    depends_on:
+      - flaskapi
+    networks:
+      - app_network
+
+  flaskapi:
+    build: ./flask_api
+    container_name: flaskapi
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+
+  postgres:
+    build: ./postgres
+    container_name: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
